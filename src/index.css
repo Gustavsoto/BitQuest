@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbara lielums */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Neredzams background */
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.3);
+  border-radius: 8px;
+}
+
+/* Darkmode krāsa scrollbaram */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(160, 160, 160, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.5);
+}
+
+/* Paslēpj bultiņas scrollbaram */
+::-webkit-scrollbar-button {
+  display: none;
+}
