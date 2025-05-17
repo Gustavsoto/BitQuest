@@ -36,8 +36,16 @@ export interface CoinData {
   [coinSymbol: string]: StockCandle[];
 }
 
+export interface IConfirmDialogProps {
+  message: string;
+  coinName?: string;
+  action?: string;
+  payout?: number;
+  onAccept: () => void;
+  onDeny: () => void;
+}
+
 export interface ISellPanelProps {
-  coins: PortfolioCoinAmount[];
   currentValue: number | undefined;
   changeActiveCoin: (name: string) => void;
 }

@@ -6,18 +6,13 @@ import { TradeBox } from "../components/TradingBox/TradeBox";
 import { invoke } from "@tauri-apps/api";
 import { useBalance } from "../BalanceContext";
 import { useAuth } from "../AuthContext";
-import {
-  CoinData,
-  PortfolioCoinAmount,
-  StockCandle,
-} from "../interfaces/interfaces.props";
+import { CoinData, StockCandle } from "../interfaces/interfaces.props";
 
 export const TradeView = () => {
   const [currentTrades, setCurrentTrades] = useState<UserTrade[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { email, password, localId } = useAuth();
   const [activeCoin, setActiveCoin] = useState<string>("BTC");
-  const [portfolio, setPortfolio] = useState<PortfolioCoinAmount[]>([]);
   const [coinData, setCoinData] = useState<CoinData | undefined>();
   const [activeCandle, setActiveCandle] = useState<StockCandle | undefined>();
   const { balance, setBalance } = useBalance();
@@ -126,47 +121,6 @@ export const TradeView = () => {
   }, []);
 
   useEffect(() => {
-    if (!email || !password) return;
-
-    const getPortfolio = async () => {
-      try {
-        const data: string = await invoke("get_user_portfolio", {
-          email,
-          password,
-        });
-
-        if (data.trim() === "{}") {
-          setPortfolio([]);
-          return;
-        }
-
-        // Izparso portfolio un uztaisa par izmantojamu objektu
-        const result = JSON.parse(data);
-
-        if (result && typeof result === "object") {
-          const filtered: PortfolioCoinAmount[] = Object.entries(result)
-            .filter(([, value]) => value !== 0)
-            .map(([coin, value]) => ({
-              coin: coin.toUpperCase(),
-              value: Number(value),
-            }));
-
-          if (filtered.length === 0) {
-            setPortfolio([]);
-            return;
-          }
-
-          setPortfolio(filtered);
-        }
-      } catch (error) {
-        console.error("Error fetching coin data:", error);
-      }
-    };
-
-    getPortfolio();
-  }, [email, password]);
-
-  useEffect(() => {
     if (coinData && activeCoin in coinData) {
       const firstCandle = coinData[activeCoin]?.[0];
       setActiveCandle(firstCandle);
@@ -181,7 +135,6 @@ export const TradeView = () => {
           <TradeBox
             changeActiveCoin={changeActiveCoin}
             firstCandle={activeCandle}
-            portfolio={portfolio}
           />
         </div>
         <TradesConsole trades={currentTrades} isLoading={isLoading} />

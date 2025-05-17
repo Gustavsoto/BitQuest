@@ -7,12 +7,15 @@ import { invoke } from "@tauri-apps/api";
 import { useBalance } from "../../BalanceContext";
 import { useAuth } from "../../AuthContext";
 import { useTranslation } from "react-i18next";
+import { SellPanelShimmer } from "./SellPanelShimmer";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 
 export const SellPanel = (props: ISellPanelProps) => {
-  const { coins, currentValue, changeActiveCoin } = props;
+  const [portfolioLoading, setPortfolioLoading] = useState<boolean>(true);
+  const { currentValue, changeActiveCoin } = props;
   const { setBalance } = useBalance();
   const { email, password } = useAuth();
-  const [portfolio, setPortfolio] = useState<PortfolioCoinAmount[]>(coins);
+  const [portfolio, setPortfolio] = useState<PortfolioCoinAmount[]>([]);
   const [selectedCoin, setSelectedCoin] = useState<string>(
     portfolio.length > 0 ? portfolio[0].coin : "BTC"
   );
@@ -22,10 +25,12 @@ export const SellPanel = (props: ISellPanelProps) => {
   const [customPayout, setCustomPayout] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [buttonPressed, setButtonPressed] = useState<boolean>(false);
   const { t } = useTranslation();
 
   const getPortfolio = useCallback(async () => {
     try {
+      setPortfolioLoading(true);
       const data: string = await invoke("get_user_portfolio", {
         email,
         password,
@@ -46,17 +51,19 @@ export const SellPanel = (props: ISellPanelProps) => {
             value: Number(value),
           }));
 
-        if (filtered.length === 0) {
-          setPortfolio([]);
-          return;
-        }
-
         setPortfolio(filtered);
       }
     } catch (error) {
       console.error("Error fetching coin data:", error);
+    } finally {
+      setPortfolioLoading(false);
     }
-  }, [email, password, setPortfolio]);
+  }, [email, password]);
+
+  useEffect(() => {
+    console.log("This is being called3");
+    getPortfolio();
+  }, [getPortfolio]);
 
   const handleTrade = useCallback(
     async (
@@ -68,6 +75,7 @@ export const SellPanel = (props: ISellPanelProps) => {
       price: number,
       date: Date
     ) => {
+      console.log("This is being called");
       setIsLoading(true);
       try {
         const response: number = await invoke("add_user_trade", {
@@ -82,11 +90,11 @@ export const SellPanel = (props: ISellPanelProps) => {
         console.log(
           "Successfully created a trade. Current balance: " + response
         );
-        getPortfolio();
         setBalance(response);
         setCustomPayout(0);
         setAmount(0);
         setError("");
+        getPortfolio();
       } catch (error) {
         console.error(error);
         setError("Something went wrong while processing the trade.");
@@ -101,13 +109,13 @@ export const SellPanel = (props: ISellPanelProps) => {
     if (
       portfolio.length > 0 &&
       currentValue !== undefined &&
-      !portfolio.find((c) => c.coin === selectedCoin) // keep user-selected coin if it's still valid
+      !portfolio.find((c) => c.coin === selectedCoin)
     ) {
       const firstCoin = portfolio[0];
+      changeActiveCoin(firstCoin.coin);
       setSelectedCoin(firstCoin.coin);
       setMaxValue(firstCoin.value);
       setPayoutMax(firstCoin.value * currentValue);
-      changeActiveCoin(firstCoin.coin);
     } else if (selectedCoin && currentValue !== undefined) {
       const coinData = portfolio.find((c) => c.coin === selectedCoin);
       if (coinData) {
@@ -118,12 +126,8 @@ export const SellPanel = (props: ISellPanelProps) => {
   }, [portfolio, currentValue, selectedCoin, changeActiveCoin]);
 
   const changeCoin = (name: string) => {
-    const coinData = portfolio.find((c) => c.coin === name);
-    if (!coinData || currentValue === undefined) return;
     changeActiveCoin(name);
     setSelectedCoin(name);
-    setMaxValue(coinData.value);
-    setPayoutMax(coinData.value * currentValue);
     setCustomPayout(0);
     setAmount(0);
     setError("");
@@ -145,7 +149,9 @@ export const SellPanel = (props: ISellPanelProps) => {
 
   return (
     <>
-      {portfolio.length === 0 ? (
+      {portfolioLoading ? (
+        <SellPanelShimmer />
+      ) : portfolio.length === 0 ? (
         <div>{t("no_assets")}</div>
       ) : currentValue === undefined ? (
         <div></div>
@@ -175,16 +181,30 @@ export const SellPanel = (props: ISellPanelProps) => {
             {t("payout_amount")}
           </label>
           <div className="flex items-center g-2">
-            <input
-              type="number"
-              min="0"
-              max={payoutMax}
-              step="1"
-              value={customPayout}
-              onChange={(e) => handleCustomPayoutChange(Number(e.target.value))}
-              className="w-full px-2 py-1 border rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-              disabled={isLoading} // Disable input while loading
-            />
+            <div className="relative w-full">
+              <input
+                type="number"
+                min="0"
+                max={payoutMax}
+                step="1"
+                value={customPayout === 0 ? "" : customPayout}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "") {
+                    setCustomPayout(0);
+                    setAmount(0);
+                    setError("");
+                  } else {
+                    handleCustomPayoutChange(Number(val));
+                  }
+                }}
+                className="w-full px-8 py-1 border rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
+                disabled={isLoading}
+              />
+              <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300 pointer-events-none">
+                $
+              </span>
+            </div>
           </div>
 
           <div className="text-sm text-gray-500 mt-1">
@@ -195,17 +215,7 @@ export const SellPanel = (props: ISellPanelProps) => {
           <button
             disabled={maxValue <= 0 || amount === 0 || !!error || isLoading}
             className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed mt-3 flex items-center justify-center gap-2"
-            onClick={() =>
-              handleTrade(
-                email,
-                password,
-                selectedCoin,
-                amount,
-                "sell",
-                customPayout,
-                new Date()
-              )
-            }
+            onClick={() => setButtonPressed(true)}
           >
             {isLoading ? (
               <>
@@ -216,6 +226,27 @@ export const SellPanel = (props: ISellPanelProps) => {
               t("confirm_sell")
             )}
           </button>
+          {buttonPressed && (
+            <ConfirmDialog
+              message={"Are you sure you want to make this trade?"}
+              onAccept={() => {
+                handleTrade(
+                  email,
+                  password,
+                  selectedCoin,
+                  amount,
+                  "sell",
+                  customPayout,
+                  new Date()
+                );
+                setButtonPressed(false);
+              }}
+              onDeny={() => setButtonPressed(false)}
+              action="sell"
+              payout={customPayout}
+              coinName={selectedCoin}
+            />
+          )}
         </>
       )}
     </>

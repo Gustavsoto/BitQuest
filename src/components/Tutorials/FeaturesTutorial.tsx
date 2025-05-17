@@ -13,6 +13,7 @@ import {
 import btcIcon from "../../assets/icons/btc.webp";
 import candlechartImage from "../../assets/pictures/candlechart.png";
 import buyboximg from "../../assets/pictures/tradebox.png";
+import { t } from "i18next";
 
 // Sample data
 const formattedValues = [
@@ -69,14 +70,14 @@ export const FeaturesTutorial = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6 min-w-[400px]">
-      <h1 className="text-4xl sm:text-3xl md:text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-        Features of BitQuest
+      <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-6">
+        {t("features_title")}
       </h1>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-        Latest crypto prices for today from CoinGecko!
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
+        {t("features_pricesToday")}
       </h2>
-      <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl shadow-md hover:scale-[1.02] transition-transform duration-300">
+      <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl shadow-md">
         <img
           src={btcIcon}
           alt="BTC"
@@ -84,13 +85,13 @@ export const FeaturesTutorial = () => {
         />
         <div className="flex-1">
           <div className="text-lg font-semibold">BTC</div>
-          <div className="text-sm">Price: $84444</div>
+          <div className="text-sm">{t("features_priceLabel")}: $84444</div>
         </div>
         <div className="text-lg font-bold text-green-500">↑ 30.2%</div>
       </div>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mt-8 mb-4">
-        Dynamic candlestick chart with a simple price ticker near cursor!
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-8 mb-4">
+        {t("features_candlestick")}
       </h2>
       <div className="mt-8">
         <img
@@ -100,8 +101,8 @@ export const FeaturesTutorial = () => {
         />
       </div>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mt-8 mb-4">
-        Simple to understand tradebox for trading crypto!
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-8 mb-4">
+        {t("features_tradebox")}
       </h2>
       <div className="mt-8">
         <img
@@ -111,41 +112,40 @@ export const FeaturesTutorial = () => {
         />
       </div>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mt-8 mb-4">
-        Every trade is being registered inside trading view to keep track of
-        your assets
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-8 mb-4">
+        {t("features_registeredTrades")}
       </h2>
       <div className="space-y-4">
-        <div className="flex justify-between items-center p-4 mb-4 border-2 bg-green-100 dark:bg-green-800 border-green-500 text-gray-800 dark:text-gray-100 rounded-lg shadow-lg hover:scale-[1.02] transition-transform duration-300">
+        <div className="flex justify-between items-center p-4 border-2 bg-green-100 dark:bg-green-800 border-green-500 rounded-lg shadow-lg">
           <div className="flex items-center space-x-4">
             <span className="font-semibold text-xl">BTC</span>
             <span className="mx-2 text-sm">|</span>
             <span className="text-lg">0.5 BTC</span>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="font-semibold text-lg">Buy</span>
+            <span className="font-semibold text-lg">{t("features_buy")}</span>
             <span className="text-sm text-gray-600 dark:text-gray-200">
-              Price: 81,680
+              {t("features_priceLabel")}: 81,680
             </span>
           </div>
         </div>
-        <div className="flex justify-between items-center p-4 mb-4 border-2 bg-red-100 dark:bg-red-700 border-red-500 text-gray-800 dark:text-gray-100 rounded-lg shadow-lg hover:scale-[1.02] transition-transform duration-300">
+        <div className="flex justify-between items-center p-4 border-2 bg-red-100 dark:bg-red-700 border-red-500 rounded-lg shadow-lg">
           <div className="flex items-center space-x-4">
             <span className="font-semibold text-xl">ETH</span>
             <span className="mx-2 text-sm">|</span>
             <span className="text-lg">1.2 ETH</span>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="font-semibold text-lg">Sell</span>
+            <span className="font-semibold text-lg">{t("features_sell")}</span>
             <span className="text-sm text-gray-600 dark:text-gray-200">
-              Price: 2,236
+              {t("features_priceLabel")}: 2,236
             </span>
           </div>
         </div>
       </div>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-4">
-        Data about coin performance from the last 30 days from CoinPaprika
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-4">
+        {t("features_chartPerformance")}
       </h2>
       <div className="h-80 w-full bg-white dark:bg-gray-700 rounded-xl p-4">
         <ResponsiveContainer width="100%" height="100%">
@@ -172,21 +172,21 @@ export const FeaturesTutorial = () => {
         </ResponsiveContainer>
       </div>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-4">
-        Add 10,000 BitQuest currency to your balance every day!
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-4">
+        {t("features_addCurrency")}
       </h2>
       <div className="flex items-center gap-4 mb-4">
         <FiPlusCircle
           className="w-10 h-10 text-blue-500 cursor-pointer"
           onClick={() => setBalance(balance + 10000)}
         />
-        <div className="text-lg font-semibold">{balance ? balance : 0}</div>
+        <div className="text-lg font-semibold">{balance}</div>
       </div>
 
-      <h2 className="text-xl sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-4">
-        Cool accessibility features like dark mode and language support
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-4">
+        {t("features_accessibility")}
       </h2>
-      <div className="w-12 h-12 items-center justify-center flex hover:bg-gray-200 dark:hover:bg-gray-500 rounded-2xl transition duration-300">
+      <div className="w-12 h-12 items-center justify-center flex hover:bg-gray-200 dark:hover:bg-gray-500 rounded-2xl">
         {darkMode ? (
           <FiMoon
             className="w-8 h-8 text-gray-800 dark:text-gray-100"

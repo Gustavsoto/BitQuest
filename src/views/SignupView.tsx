@@ -94,12 +94,12 @@ export const SignupView = () => {
         "w-screen h-screen flex bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
       }
     >
-      <h1 className="hidden lg:flex text-3xl font-bold flex-2 bg-gray-100 dark:bg-gray-900 items-center justify-center">
+      <h1 className="hidden lg:flex text-3xl font-bold flex-2 bg-gray-100 dark:bg-gray-800 items-center justify-center">
         BitQuest
       </h1>
 
-      <div className="w-150 h-full bg-gray-200 dark:bg-gray-800 flex justify-center items-center flex-1 lg:flex-none min-h-[700px] overflow-y-auto">
-        <div className="w-full max-w-md h-max bg-gray-100 dark:bg-gray-700 p-8 rounded-2xl shadow-lg flex flex-col gap-4">
+      <div className="w-150 h-full bg-gray-200 dark:bg-gray-700 flex justify-center items-center flex-1 lg:flex-none min-h-[700px] overflow-y-auto">
+        <div className="w-full max-w-md h-max bg-gray-100 dark:bg-gray-800 p-8 rounded-2xl shadow-lg flex flex-col gap-4">
           {/* Atpakaļ poga */}
           <button
             onClick={handleBack}
@@ -108,45 +108,54 @@ export const SignupView = () => {
             <FiArrowLeft className="mr-2" /> {t("back")}
           </button>
 
-          <InputField
-            label="name"
-            placeholder="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <InputField
-            label="surname"
-            placeholder="surname"
-            value={surname}
-            onChange={(e) => setSurname(e.target.value)}
-          />
-          <InputField
-            label="email"
-            placeholder="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <InputField
-            label="password"
-            placeholder="password"
-            value={password}
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            className="p-3 rounded-xl bg-green-500 hover:bg-green-700 text-white font-medium transition flex items-center justify-center gap-2"
-            onClick={() => registerUser()}
-            disabled={isLoading}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              registerUser();
+            }}
+            className="flex flex-col gap-4"
           >
-            {isLoading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Loading...
-              </>
-            ) : (
-              t("signup")
-            )}
-          </button>
+            <InputField
+              label="name"
+              placeholder="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <InputField
+              label="surname"
+              placeholder="surname"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+            />
+            <InputField
+              label="email"
+              placeholder="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <InputField
+              label="password"
+              placeholder="password"
+              value={password}
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button
+              type="submit" // <-- This makes Enter key submit the form
+              className="p-3 rounded-xl bg-green-500 hover:bg-green-700 text-white font-medium transition flex items-center justify-center gap-2"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Loading...
+                </>
+              ) : (
+                t("signup")
+              )}
+            </button>
+          </form>
           {errorMessage && (
             <div className="text-red-500 mt-2">{errorMessage}</div>
           )}

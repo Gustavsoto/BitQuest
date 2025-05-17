@@ -10,6 +10,7 @@ import i18n from "../../i18n/config";
 import enFlag from "../../assets/icons/gb.svg";
 import lvFlag from "../../assets/icons/lv.svg";
 import { useTranslation } from "react-i18next";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 
 export const TopBar = (props: ITopbarProps) => {
   const {
@@ -26,6 +27,7 @@ export const TopBar = (props: ITopbarProps) => {
   const { balance, setBalance, setCoinData } = useBalance();
   const [isEnabled, setIsEnabled] = useState<boolean>(false); // Šis ir daily balance pievienošanas pogai
   const [loading, setLoading] = useState<boolean>(false);
+  const [logoutPressed, setLogoutPressed] = useState<boolean>(false);
   const { activeTitle } = props;
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -142,7 +144,7 @@ export const TopBar = (props: ITopbarProps) => {
         <div className="text-xl font-semibold flex items-center mr-2">
           <div className="mr-1">
             <FiPlusCircle
-              className={`w-8 h-8 ${!isEnabled ? "text-gray-400 cursor-not-allowed" : "text-blue-500 cursor-pointer"}`}
+              className={`w-8 h-8 ${!isEnabled ? "text-gray-400 cursor-not-allowed" : "text-white cursor-pointer fill-green-500 outline-green-500"}`}
               onClick={() => {
                 if (!isEnabled) return;
                 add_daily_balance(10000);
@@ -173,8 +175,18 @@ export const TopBar = (props: ITopbarProps) => {
           )}
         </div>
         <div className="w-12 h-12 items-center justify-center flex hover:bg-gray-200 dark:hover:bg-gray-500 rounded-2xl">
-          <FiLogOut onClick={handleLogout} className="w-8 h-8" />
+          <FiLogOut
+            onClick={() => setLogoutPressed(true)}
+            className="w-8 h-8"
+          />
         </div>
+        {logoutPressed && (
+          <ConfirmDialog
+            message="Do you want to log out?"
+            onAccept={handleLogout}
+            onDeny={() => setLogoutPressed(false)}
+          />
+        )}
       </div>
     </div>
   );

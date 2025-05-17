@@ -31,26 +31,26 @@ export const PortfolioView = () => {
   >({});
   const { t } = useTranslation();
   const { setCoinData } = useBalance();
-  const [activeCoin, setActiveCoin] = useState<string>("none");
-  const [portfolio, setPortfolio] = useState<PortfolioCoinAmount[]>([]);
+  const [activeCoin, setActiveCoin] = useState<string>("none"); // Atslega kriptovalūtai kas tiek šobrīd attēlota diagrammā
+  const [portfolio, setPortfolio] = useState<PortfolioCoinAmount[]>([]); // Lietotāja portfelis
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const { coinData } = useBalance();
+  const { coinData } = useBalance(); // Kriptovalūtu dati
   const { email, password } = useAuth();
 
   const getCurrentCoinPrice = (symbol: string) => {
     return coinData?.[symbol]?.[0]?.close ?? 0;
   };
-
+  // Nomaina kriptovalūtu diagrammā
   const handleCoinChange = (selectedCoin: string) => {
     setActiveCoin(selectedCoin);
   };
-
+  // Portfeļa iegūšana
   useEffect(() => {
     if (!email || !password) return;
 
     setLoading(true);
-    setError(null); // Clear previous error
+    setError(null);
 
     const getPortfolio = async () => {
       try {
@@ -93,6 +93,7 @@ export const PortfolioView = () => {
 
           const fetchHistoricalData = async () => {
             try {
+              // Datuma parsošana uz ISO string
               const startDate = new Date();
               startDate.setDate(startDate.getDate() - 30);
               const ret_date = startDate.toISOString().split("T")[0];
@@ -184,9 +185,11 @@ export const PortfolioView = () => {
                   : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
               }`}
             >
+              {/* Kļūdas paziņojums */}
               <p>{error}</p>
             </div>
           ) : loading ? (
+            // Vietturis
             Array.from({ length: 5 }).map((_, i) => (
               <PortfolioItemSkeleton key={i} />
             ))

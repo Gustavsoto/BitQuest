@@ -186,3 +186,73 @@ pub async fn authenticate_and_get_firebase(
 
     Ok((firebase, response.local_id, response.id_token))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio;
+
+    #[test]
+    fn test_get_api_key_reads_env_vars() {
+        let orig_auth_key = std::env::var("FIREBASE_AUTH_KEY").ok();
+        let orig_uri = std::env::var("FIREBASE_URI").ok();
+
+        std::env::set_var("FIREBASE_AUTH_KEY", "dummy_key");
+        std::env::set_var("FIREBASE_URI", "dummy_uri");
+
+        assert_eq!(
+            Some("dummy_key".to_string()),
+            get_api_key("FIREBASE_AUTH_KEY")
+        );
+        assert_eq!(Some("dummy_uri".to_string()), get_api_key("FIREBASE_URI"));
+
+        // Restore
+        if let Some(k) = orig_auth_key {
+            std::env::set_var("FIREBASE_AUTH_KEY", k);
+        } else {
+            std::env::remove_var("FIREBASE_AUTH_KEY");
+        }
+        if let Some(u) = orig_uri {
+            std::env::set_var("FIREBASE_URI", u);
+        } else {
+            std::env::remove_var("FIREBASE_URI");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_create_user_fails_if_env_missing() {
+        // Ensure env vars are not set or empty
+        std::env::remove_var("FIREBASE_AUTH_KEY");
+        std::env::remove_var("FIREBASE_URI");
+
+        let email = "test@test.test".to_string();
+        let password = "password".to_string();
+        let name = "John".to_string();
+        let surname = "Doe".to_string();
+
+        let result = create_user(&email, &password, &name, &surname).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Missing FIREBASE_AUTH_KEY");
+    }
+
+    #[tokio::test]
+    async fn test_authenticate_user_fails_if_env_missing() {
+        std::env::remove_var("FIREBASE_AUTH_KEY");
+        std::env::remove_var("FIREBASE_URI");
+
+        let email = "test@example.com".to_string();
+        let password = "password".to_string();
+
+        let result = authenticate_user(&email, &password).await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Missing FIREBASE_AUTH_KEY");
+    }
+
+    #[test]
+    fn test_get_api_key_returns_none_if_missing() {
+        std::env::remove_var("FIREBASE_AUTH_KEY");
+        assert_eq!(get_api_key("FIREBASE_AUTH_KEY"), None);
+        std::env::remove_var("FIREBASE_URI");
+        assert_eq!(get_api_key("FIREBASE_URI"), None);
+    }
+}

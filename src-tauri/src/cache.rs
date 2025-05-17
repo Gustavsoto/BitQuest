@@ -214,3 +214,105 @@ pub async fn get_cached_user_portfolio(uid: &str) -> Option<Portfolio> {
     let cache = PORTFOLIO_CACHE.lock().await;
     cache.get(uid).cloned()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::Utc;
+
+    #[tokio::test]
+    async fn test_get_user_balance_found() {
+        let user_id = "user123".to_string();
+        {
+            let mut cache = BALANCE_CACHE.lock().await;
+            cache.insert(user_id.clone(), 100.50);
+        }
+
+        let result = get_user_balance(user_id.clone()).await;
+        assert_eq!(result.unwrap(), 100.50);
+    }
+
+    #[tokio::test]
+    async fn test_get_user_balance_not_found() {
+        let user_id = "missing_user".to_string();
+        {
+            let mut cache = BALANCE_CACHE.lock().await;
+            cache.remove(&user_id);
+        }
+
+        let result = get_user_balance(user_id.clone()).await;
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            format!("Balance not found for user ID: {}", user_id)
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_cached_user_portfolio_found() {
+        let uid = "user_portfolio";
+        let portfolio = Portfolio {
+            btc: 1.0,
+            eth: 2.0,
+            ..Default::default()
+        };
+
+        {
+            let mut cache = PORTFOLIO_CACHE.lock().await;
+            cache.insert(uid.to_string(), portfolio.clone());
+        }
+
+        let result = get_cached_user_portfolio(uid).await;
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().btc, 1.0);
+    }
+
+    #[tokio::test]
+    async fn test_get_cached_user_portfolio_not_found() {
+        let uid = "nonexistent_user";
+
+        {
+            let mut cache = PORTFOLIO_CACHE.lock().await;
+            cache.remove(uid);
+        }
+
+        let result = get_cached_user_portfolio(uid).await;
+        assert!(result.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_get_coins_data_empty_cache() {
+        {
+            let mut cache = PRICE_CACHE.lock().await;
+            cache.clear();
+        }
+
+        let result = get_coins_data().await;
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "The cache is currently empty.");
+    }
+
+    #[tokio::test]
+    async fn test_get_coins_data_with_data() {
+        let mut test_data = Vec::new();
+        test_data.push(StockCandle {
+            date: Utc::now(),
+            open: 100.0,
+            high: 120.0,
+            low: 90.0,
+            close: 110.0,
+        });
+
+        {
+            let mut cache = PRICE_CACHE.lock().await;
+            cache.clear();
+            cache.insert("BTC".to_string(), test_data.clone());
+        }
+
+        let result = get_coins_data().await;
+        assert!(result.is_ok());
+        let data = result.unwrap();
+        assert!(data.contains_key("BTC"));
+        assert_eq!(data["BTC"].len(), 1);
+    }
+}

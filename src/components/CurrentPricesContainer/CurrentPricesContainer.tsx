@@ -98,7 +98,7 @@ export const CurrentPricesContainer = () => {
           </div>
         ) : coinData ? (
           Object.entries(coinData).map(([coinSymbol, candles]) => {
-            // Katram lai pārbaudītu kāds cenu pieaugums vai kritums papildus notiek kalkulācijas ar iepriekšējo candle
+            // Katram lai pārbaudītu kāds cenu pieaugums vai kritums papildus notiek kalkulācijas ar pēdējā candle atribūtiem
             const latestCandle = candles[candles.length - 1];
             const diff = getDifference(latestCandle);
             const isPositive = diff >= 0;
@@ -109,7 +109,10 @@ export const CurrentPricesContainer = () => {
               <div
                 key={coinSymbol}
                 className="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-xl shadow-md cursor-pointer min-w-[250px] hover:scale-[1.02] transition-transform duration-300"
-                onClick={() => navigation("/bitquest/trade")}
+                onClick={() => {
+                  sessionStorage.setItem("selectedCoin", coinSymbol);
+                  navigation("/bitquest/trade");
+                }}
               >
                 <img
                   src={coinIconMap[coinSymbol]}

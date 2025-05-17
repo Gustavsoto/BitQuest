@@ -8,6 +8,7 @@ import solIcon from "../../assets/icons/sol.webp";
 import usdcIcon from "../../assets/icons/usdc.webp";
 import adaIcon from "../../assets/icons/ada.webp";
 import trxIcon from "../../assets/icons/trx.webp";
+import { useTranslation } from "react-i18next";
 
 const coinMetaMap: Record<string, { icon: string; name: string }> = {
   BTC: { icon: btcIcon, name: "Bitcoin" },
@@ -23,24 +24,21 @@ const coinMetaMap: Record<string, { icon: string; name: string }> = {
 };
 
 export const WelcomeTutorial = () => {
+  const { t } = useTranslation();
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6 min-w-[400px]">
       <h1 className="text-5xl sm:text-4xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 text-center">
-        Welcome to BitQuest
+        {t("tutorial_view_option_1")}
       </h1>
       <p className="text-3xl sm:text-2xl md:text-xl text-gray-700 font-semibold dark:text-gray-300 mb-6 leading-relaxed text-center">
-        BitQuest is a beginner-friendly platform designed to teach you the
-        fundamentals of cryptocurrency and trading. Explore core blockchain
-        technologies, learn how trading works, and use our paper trading tool to
-        practice with real market data — all without the risk.
+        {t("welcome_description1")}
       </p>
       <p className="text-3xl sm:text-2xl md:text-xl text-gray-600 font-semibold dark:text-gray-400 mb-8 text-center">
-        We track the latest prices for the top 10 cryptocurrencies in real time
-        so you can stay informed and learn by doing.
+        {t("welcome_description2")}
       </p>
 
       <h2 className="text-3xl sm:text-2xl md:text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">
-        🪙 Top Cryptocurrencies on BitQuest
+        🪙 {t("welcome_top_coins")}
       </h2>
 
       <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(200px,1fr))] justify-items-center">

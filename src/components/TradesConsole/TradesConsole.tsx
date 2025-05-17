@@ -31,8 +31,8 @@ export const TradesConsole = (props: ITradesConsoleProps) => {
                 key={index}
                 className={`flex justify-between items-center p-2 mb-2 border-2 ${
                   trade.action !== "buy"
-                    ? "bg-green-200 dark:bg-green-800 border-green-500 text-gray-800 dark:text-gray-100"
-                    : "bg-red-200 dark:bg-red-700 border-red-500 text-gray-800 dark:text-gray-100"
+                    ? "bg-red-200 dark:bg-red-700 border-red-500 text-gray-800 dark:text-gray-100"
+                    : "bg-green-200 dark:bg-green-800 border-green-500 text-gray-800 dark:text-gray-100"
                 }`}
               >
                 <div className="flex items-center">

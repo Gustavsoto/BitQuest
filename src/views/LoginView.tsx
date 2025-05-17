@@ -97,39 +97,49 @@ export const LoginView = () => {
         <div className="w-full max-w-md h-max bg-gray-100 dark:bg-gray-800 p-8 rounded-2xl shadow-lg flex flex-col gap-4">
           <h2 className="text-2xl font-bold text-center">BitQuest</h2>
 
-          <InputField
-            label="email"
-            placeholder="email"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <InputField
-            label="password"
-            placeholder="password"
-            value={password}
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <div className="h-px bg-gray-400 dark:bg-gray-700 w-full" />
-
-          <button
-            className="p-3 rounded-xl bg-green-500 hover:bg-green-700 text-white font-medium transition flex items-center justify-center gap-2"
-            onClick={() => getUserData(name, password)}
-            disabled={isLoading}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              getUserData(name, password);
+            }}
+            className="flex flex-col gap-4"
           >
-            {isLoading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                {t("loading")}...
-              </>
-            ) : (
-              t("login")
-            )}
-          </button>
+            <InputField
+              label="email"
+              placeholder="email"
+              disabled={isLoading}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <InputField
+              label="password"
+              placeholder="password"
+              value={password}
+              disabled={isLoading}
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <div className="h-px bg-gray-400 dark:bg-gray-700 w-full" />
+
+            <button
+              type="submit"
+              className="p-3 rounded-xl bg-green-500 hover:bg-green-700 text-white font-medium transition flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  {t("loading")}...
+                </>
+              ) : (
+                t("login")
+              )}
+            </button>
+          </form>
 
           <button
-            className="p-3 rounded-xl bg-red-500 hover:bg-red-700 text-white font-medium transition"
+            className="p-3 rounded-xl bg-red-500 hover:bg-red-700 text-white font-medium transition disabled:opacity-50"
             onClick={signUp}
             disabled={isLoading}
           >

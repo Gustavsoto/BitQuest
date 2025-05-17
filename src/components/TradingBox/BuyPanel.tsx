@@ -4,6 +4,7 @@ import { useBalance } from "../../BalanceContext";
 import { useAuth } from "../../AuthContext";
 import { IBuyPanelProps } from "../../interfaces/interfaces.props";
 import { useTranslation } from "react-i18next";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 
 const COINS = [
   "BTC",
@@ -19,12 +20,14 @@ const COINS = [
 ];
 
 export const BuyPanel = (props: IBuyPanelProps) => {
-  const { changeActiveCoin, currentValue } = props;
-  const { balance, setBalance } = useBalance();
+  const { changeActiveCoin, currentValue } = props; // Izvēlētā svece diagrammā un šī brīža kriptovalūtas slēgšanas cena
+  const { balance, setBalance } = useBalance(); // Lietotāja bilance
   const { email, password } = useAuth();
-  const [selectedCoin, setSelectedCoin] = useState<string>("BTC");
-  const [spendAmount, setSpendAmount] = useState<number>(0);
-  const [amountToBuy, setAmountToBuy] = useState<number>(0);
+  const defaultCoin = sessionStorage.getItem("selectedCoin") || "BTC"; // Nokausējuma vērtība iekšā kriptovalūtas izvelnē
+  const [selectedCoin, setSelectedCoin] = useState<string>(defaultCoin);
+  const [spendAmount, setSpendAmount] = useState<number>(0); // Darījuma naudas vērtība
+  const [amountToBuy, setAmountToBuy] = useState<number>(0); // Kriptovalūtu daudzums darījumam
+  const [buttonPressed, setButtonPressed] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { t } = useTranslation();
@@ -39,7 +42,7 @@ export const BuyPanel = (props: IBuyPanelProps) => {
       price: number,
       date: Date
     ) => {
-      setIsLoading(true); // ← START loading
+      setIsLoading(true);
       try {
         const response: number = await invoke("add_user_trade", {
           email,
@@ -71,6 +74,7 @@ export const BuyPanel = (props: IBuyPanelProps) => {
     changeActiveCoin(selectedCoin);
   }, [selectedCoin, changeActiveCoin]);
 
+  // Maina izvelnes izvēlēto vērtību
   const changeCoin = (name: string) => {
     setSelectedCoin(name);
     changeActiveCoin(name);
@@ -79,6 +83,7 @@ export const BuyPanel = (props: IBuyPanelProps) => {
     setError("");
   };
 
+  // Kļūdu pārbaude tam vai var atļauties šādu darījumu
   const handleSpendChange = (value: number) => {
     if (!currentValue) return;
 
@@ -96,6 +101,7 @@ export const BuyPanel = (props: IBuyPanelProps) => {
 
   return (
     <>
+      {/* Kļūdas paziņojums */}
       {currentValue === undefined ? (
         <div className="text-gray-600 dark:text-gray-300">
           {t("coinprice_error")}
@@ -105,6 +111,7 @@ export const BuyPanel = (props: IBuyPanelProps) => {
           <label className="text-sm text-gray-700 dark:text-gray-300 mb-1">
             {t("coin_name")}
           </label>
+          {/* Kriptovalūtu izvelne */}
           <select
             value={selectedCoin}
             onChange={(e) => changeCoin(e.target.value)}
@@ -125,16 +132,32 @@ export const BuyPanel = (props: IBuyPanelProps) => {
           <label className="text-sm text-gray-700 dark:text-gray-300 mb-1">
             {t("buy_price")}
           </label>
-          <input
-            type="number"
-            min="0"
-            max={balance}
-            step="1"
-            value={spendAmount}
-            onChange={(e) => handleSpendChange(Number(e.target.value))}
-            className="w-full px-2 py-1 border rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-            disabled={isLoading} // Disable during loading
-          />
+          <div className="relative w-full">
+            <input
+              type="number"
+              min="0"
+              max={balance}
+              step="1"
+              value={spendAmount === 0 ? "" : spendAmount}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "") {
+                  setSpendAmount(0);
+                  setAmountToBuy(0);
+                  setError("");
+                } else {
+                  const numberVal = Number(val);
+                  handleSpendChange(numberVal);
+                }
+              }}
+              className="w-full px-8 py-1 border rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
+              disabled={isLoading}
+            />
+            {/* Naudas simbols pa kreisi no ievadlauka */}
+            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none">
+              $
+            </span>
+          </div>
 
           <div className="text-sm text-gray-500 mt-1">
             {t("balance")}: <strong>${balance.toFixed(2)}</strong>
@@ -154,17 +177,7 @@ export const BuyPanel = (props: IBuyPanelProps) => {
           <button
             disabled={balance <= 0 || amountToBuy === 0 || !!error || isLoading}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2"
-            onClick={() =>
-              handleTrade(
-                email,
-                password,
-                selectedCoin,
-                amountToBuy,
-                "buy",
-                spendAmount,
-                new Date()
-              )
-            }
+            onClick={() => setButtonPressed(true)}
           >
             {isLoading ? (
               <>
@@ -175,6 +188,28 @@ export const BuyPanel = (props: IBuyPanelProps) => {
               t("confirm_buy")
             )}
           </button>
+          {/* Apstiprināšanas dialogs */}
+          {buttonPressed && (
+            <ConfirmDialog
+              message={"Are you sure you want to make this trade?"}
+              onAccept={() => {
+                handleTrade(
+                  email,
+                  password,
+                  selectedCoin,
+                  amountToBuy,
+                  "buy",
+                  spendAmount,
+                  new Date()
+                );
+                setButtonPressed(false);
+              }}
+              onDeny={() => setButtonPressed(false)}
+              action="buy"
+              payout={spendAmount}
+              coinName={selectedCoin}
+            />
+          )}
         </>
       )}
     </>

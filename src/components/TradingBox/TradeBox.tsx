@@ -1,11 +1,11 @@
 import { ITradeBoxProps } from "./TradingBox.props";
 import { BuyPanel } from "./BuyPanel";
 import { SellPanel } from "./SellPanel";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 export const TradeBox = (props: ITradeBoxProps) => {
-  const { changeActiveCoin, firstCandle, portfolio } = props;
+  const { changeActiveCoin, firstCandle } = props;
   const [activeTab, setActiveTab] = useState<"buy" | "sell">("buy");
   const { t } = useTranslation();
 
@@ -50,7 +50,6 @@ export const TradeBox = (props: ITradeBoxProps) => {
         />
       ) : (
         <SellPanel
-          coins={portfolio}
           currentValue={firstCandle?.close}
           changeActiveCoin={changeActiveCoin}
         />

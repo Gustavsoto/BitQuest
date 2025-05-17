@@ -29,7 +29,7 @@ pub struct Balance {
     pub balance: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Portfolio {
     pub btc: f64,
     pub eth: f64,
@@ -420,4 +420,78 @@ fn string_to_user(s: &str) -> User {
 
 fn string_to_float(s: &str) -> f64 {
     serde_json::from_str(s).unwrap()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_valid_coin() {
+        let p = Portfolio {
+            btc: 1.0,
+            eth: 0.0,
+            usdt: 0.0,
+            xrp: 0.0,
+            bnb: 0.0,
+            sol: 0.0,
+            usdc: 0.0,
+            ada: 0.0,
+            doge: 0.0,
+            trx: 0.0,
+        };
+        assert_eq!(p.get("BTC").unwrap(), 1.0);
+    }
+
+    #[test]
+    fn test_get_invalid_coin() {
+        let p = Portfolio {
+            btc: 0.0,
+            eth: 0.0,
+            usdt: 0.0,
+            xrp: 0.0,
+            bnb: 0.0,
+            sol: 0.0,
+            usdc: 0.0,
+            ada: 0.0,
+            doge: 0.0,
+            trx: 0.0,
+        };
+        assert!(p.get("INVALID").is_err());
+    }
+
+    #[test]
+    fn test_set_valid_coin() {
+        let mut p = Portfolio {
+            btc: 0.0,
+            eth: 0.0,
+            usdt: 0.0,
+            xrp: 0.0,
+            bnb: 0.0,
+            sol: 0.0,
+            usdc: 0.0,
+            ada: 0.0,
+            doge: 0.0,
+            trx: 0.0,
+        };
+        p.set("BTC", 2.5).unwrap();
+        assert_eq!(p.btc, 2.5);
+    }
+
+    #[test]
+    fn test_set_invalid_coin() {
+        let mut p = Portfolio {
+            btc: 0.0,
+            eth: 0.0,
+            usdt: 0.0,
+            xrp: 0.0,
+            bnb: 0.0,
+            sol: 0.0,
+            usdc: 0.0,
+            ada: 0.0,
+            doge: 0.0,
+            trx: 0.0,
+        };
+        assert!(p.set("INVALID", 2.5).is_err());
+    }
 }
